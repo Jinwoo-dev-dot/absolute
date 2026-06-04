@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MicroClean · 미세플라스틱 제거 시스템</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --deep: #01080f;
+  --mid: #021628;
+  --surf: #042540;
+  --teal: #00d4c8;
+  --teal2: #00a89e;
+  --cyan: #7fffff;
+  --foam: #b8f0ee;
+  --gold: #f5c842;
+  --warn: #ff7b54;
+  --danger: #ff4d6d;
+  --ok: #2dde98;
+  --txt: #d6eef5;
+  --dim: #5a8ea8;
+  --border: rgba(0,212,200,0.15);
+  --glass: rgba(2,22,40,0.7);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{
+  width:100%;height:100%;
+  background:var(--deep);
+  color:var(--txt);
+  font-family:'Noto Sans KR',sans-serif;
+  overflow:hidden;
+}
+
+/* ── OCEAN CANVAS ─────────────────────────── */
+#ocean-bg{
+  position:fixed;inset:0;z-index:0;
+}
+
+/* ── APP SHELL ────────────────────────────── */
+#app{
+  position:fixed;inset:0;z-index:10;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+/* ── TOP NAV ──────────────────────────────── */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 28px 14px;
+  border-bottom:1px solid var(--border);
+  background:rgba(1,8,15,0.6);
+  backdrop-filter:blur(16px);
+  flex-shrink:0;
+}
+.nav-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:3px;
+  color:var(--teal);
+}
+.nav-logo span{color:white}
+.nav-steps{
+  display:flex;gap:8px;align-items:center;
+}
+.step-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--dim);
+  transition:all .4s;
+  cursor:default;
+}
+.step-dot.active{background:var(--teal);box-shadow:0 0 10px var(--teal)}
+.step-dot.done{background:var(--teal2)}
+.nav-team{
+  font-family:'DM Mono',monospace;
+  font-size:10px;color:var(--dim);
+  letter-spacing:1px;
+}
+
+/* ── PAGE CONTAINER ───────────────────────── */
+#pages{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+}
+.page{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px 20px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .45s cubic-bezier(.4,0,.2,1),
+             transform .45s cubic-bezier(.4,0,.2,1);
+  transform:translateX(60px);
+  overflow-y:auto;
+}
+.page.active{
+  opacity:1;pointer-events:all;transform:translateX(0);
+}
+.page.exit{
+  opacity:0;transform:translateX(-60px);
+}
+
+/* ── PAGE 0 : SPLASH ──────────────────────── */
+#page-0{
+  gap:0;
+}
+.splash-sdg{
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:3px;color:var(--teal);
+  border:1px solid var(--border);
+  padding:5px 14px;border-radius:20px;
+  margin-bottom:22px;
+  background:rgba(0,212,200,0.06);
+}
+.splash-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(42px,8vw,72px);
+  letter-spacing:4px;
+  line-height:1;
+  text-align:center;
+  margin-bottom:10px;
+  background:linear-gradient(160deg,#fff 30%,var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.splash-sub{
+  font-size:13px;color:var(--dim);
+  text-align:center;
+  line-height:1.7;
+  max-width:360px;
+  margin-bottom:36px;
+}
+.splash-start{
+  background:linear-gradient(135deg,var(--teal2),var(--teal));
+  border:none;border-radius:50px;
+  color:var(--deep);
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:15px;font-weight:700;
+  padding:15px 48px;
+  cursor:pointer;
+  transition:all .25s;
+  letter-spacing:.5px;
+  box-shadow:0 4px 30px rgba(0,212,200,0.35);
+}
+.splash-start:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 40px rgba(0,212,200,0.5);
+}
+.splash-info{
+  display:flex;gap:28px;margin-top:40px;
+}
+.splash-stat{
+  text-align:center;
+}
+.splash-stat-num{
+  font-family:'Bebas Neue',monospace;
+  font-size:28px;color:white;
+  line-height:1;
+}
+.splash-stat-lbl{
+  font-size:10px;color:var(--dim);
+  margin-top:3px;
+}
+
+/* ── SHARED CARD ──────────────────────────── */
+.card-panel{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:28px 28px 22px;
+  backdrop-filter:blur(20px);
+  box-shadow:0 8px 40px rgba(0,0,0,0.4);
+  width:100%;
+  max-width:500px;
+}
+
+.panel-eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--teal);
+  margin-bottom:6px;
+}
+.panel-title{
+  font-size:20px;font-weight:900;
+  margin-bottom:4px;letter-spacing:-.5px;
+}
+.panel-desc{
+  font-size:12px;color:var(--dim);
+  line-height:1.6;
+  margin-bottom:24px;
+}
+
+/* ── NUMBER INPUT FIELD ───────────────────── */
+.field{
+  margin-bottom:16px;
+}
+.field-label{
+  display:flex;justify-content:space-between;
+  font-size:12px;color:var(--dim);
+  margin-bottom:7px;
+}
+.field-unit{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  background:rgba(0,212,200,0.08);
+  border:1px solid var(--border);
+  color:var(--teal);
+  padding:2px 8px;border-radius:4px;
+}
+.input-wrap{
+  display:flex;align-items:center;gap:0;
+  background:rgba(1,8,15,0.7);
+  border:1.5px solid rgba(0,212,200,0.2);
+  border-radius:12px;
+  overflow:hidden;
+  transition:border-color .2s;
+}
+.input-wrap:focus-within{
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(0,212,200,0.12);
+}
+.field-icon{
+  padding:0 12px;
+  font-size:16px;
+  opacity:.8;
+  flex-shrink:0;
+}
+input[type="number"]{
+  flex:1;
+  background:transparent;
+  border:none;outline:none;
+  color:white;
+  font-family:'DM Mono',monospace;
+  font-size:22px;font-weight:500;
+  padding:13px 8px 13px 0;
+  width:0;
+  min-width:0;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none}
+.field-hint{
+  font-size:10px;color:var(--dim);
+  margin-top:5px;
+  padding-left:4px;
+}
+.field-hint span{color:var(--teal);}
+
+.field-valid-icon{
+  padding:0 14px;
+  font-size:16px;
+  opacity:0;
+  transition:opacity .2s;
+}
+.input-wrap.valid .field-valid-icon{opacity:1;}
+.input-wrap.error{border-color:var(--danger)!important;}
+
+/* SELECT */
+.select-wrap{
+  background:rgba(1,8,15,0.7);
+  border:1.5px solid rgba(0,212,200,0.2);
+  border-radius:12px;
+  overflow:hidden;
+  transition:border-color .2s;
+}
+.select-wrap:focus-within{border-color:var(--teal);}
+select{
+  width:100%;
+  background:transparent;
+  border:none;outline:none;
+  color:white;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:14px;
+  padding:14px 16px;
+  cursor:pointer;
+  appearance:none;
+}
+select option{background:#021628;color:white;}
+
+/* ── NEXT BUTTON ──────────────────────────── */
+.btn-next{
+  width:100%;
+  background:linear-gradient(135deg,var(--teal2),var(--teal));
+  border:none;border-radius:14px;
+  color:var(--deep);
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:15px;font-weight:700;
+  padding:16px;
+  cursor:pointer;
+  margin-top:6px;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:.3px;
+}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,212,200,0.4);}
+.btn-next:active{transform:none;}
+.btn-next:disabled{
+  background:rgba(0,212,200,0.15);
+  color:var(--dim);cursor:not-allowed;
+  transform:none;box-shadow:none;
+}
+.btn-back{
+  background:none;border:1px solid var(--border);
+  border-radius:10px;color:var(--dim);
+  font-size:12px;padding:9px 18px;
+  cursor:pointer;margin-top:8px;
+  transition:all .2s;font-family:'Noto Sans KR',sans-serif;
+  display:block;margin-left:auto;margin-right:auto;
+}
+.btn-back:hover{border-color:var(--teal);color:var(--teal);}
+
+/* ── PAGE 4 : SELECT PAGE ─────────────────── */
+.option-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:16px;
+}
+.option-btn{
+  background:rgba(1,8,15,0.6);
+  border:1.5px solid rgba(0,212,200,0.15);
+  border-radius:14px;
+  padding:14px 12px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .2s;
+  color:var(--txt);
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:12px;
+  line-height:1.5;
+}
+.option-btn:hover{
+  border-color:var(--teal);
+  background:rgba(0,212,200,0.08);
+}
+.option-btn.selected{
+  border-color:var(--teal);
+  background:rgba(0,212,200,0.12);
+  box-shadow:0 0 14px rgba(0,212,200,0.2);
+}
+.option-icon{display:block;font-size:22px;margin-bottom:6px;}
+.option-label{font-weight:700;font-size:12px;}
+.option-sub{font-size:10px;color:var(--dim);}
+
+/* ── PAGE 5: RESULTS ──────────────────────── */
+#page-5{
+  justify-content:flex-start;
+  padding-top:20px;
+  padding-bottom:40px;
+}
+.results-wrap{
+  width:100%;max-width:520px;
+}
+
+.result-hero{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:24px;
+  margin-bottom:14px;
+  backdrop-filter:blur(20px);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.result-hero::before{
+  content:'';
+  position:absolute;
+  inset:-1px;
+  border-radius:20px;
+  padding:1px;
+  background:linear-gradient(135deg,var(--teal),transparent,var(--teal2));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  opacity:.5;
+}
+.hero-label{
+  font-size:10px;font-family:'DM Mono',monospace;
+  letter-spacing:2px;color:var(--teal);
+  text-transform:uppercase;margin-bottom:8px;
+}
+.hero-number{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:80px;line-height:1;
+  margin-bottom:4px;
+}
+.hero-sub{font-size:12px;color:var(--dim);}
+
+.eff-ring-wrap{
+  display:flex;align-items:center;justify-content:center;
+  gap:20px;margin:16px 0 10px;
+}
+.eff-ring{
+  position:relative;width:80px;height:80px;
+}
+.eff-ring svg{transform:rotate(-90deg);}
+.eff-ring-label{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:18px;color:white;line-height:1;
+}
+.eff-ring-sub{font-family:'Noto Sans KR',sans-serif;font-size:8px;color:var(--dim);margin-top:2px;}
+.ring-legend{font-size:11px;color:var(--dim);}
+.ring-legend b{color:white;display:block;font-size:13px;}
+
+/* metrics row */
+.metrics-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-bottom:14px;
+}
+.metric-box{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px 10px;
+  text-align:center;
+  backdrop-filter:blur(12px);
+}
+.metric-n{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:26px;color:white;line-height:1;margin-bottom:3px;
+}
+.metric-u{font-size:9px;color:var(--teal);font-family:'DM Mono',monospace;}
+.metric-l{font-size:10px;color:var(--dim);margin-top:2px;}
+
+/* process steps */
+.steps-block{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:14px;
+  backdrop-filter:blur(12px);
+}
+.steps-title{
+  font-size:11px;font-family:'DM Mono',monospace;
+  letter-spacing:2px;color:var(--teal);
+  text-transform:uppercase;margin-bottom:16px;
+}
+.step-row{
+  display:flex;gap:14px;align-items:flex-start;
+  padding-bottom:14px;margin-bottom:14px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.step-row:last-child{padding-bottom:0;margin-bottom:0;border-bottom:none;}
+.step-circle{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal2),var(--teal));
+  display:grid;place-items:center;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:13px;color:var(--deep);
+  flex-shrink:0;margin-top:1px;
+}
+.step-body{flex:1;}
+.step-name{font-size:13px;font-weight:700;margin-bottom:3px;}
+.step-info{font-size:11px;color:var(--dim);line-height:1.6;}
+.step-tag{
+  display:inline-block;margin-top:5px;
+  font-family:'DM Mono',monospace;font-size:9px;
+  background:rgba(0,212,200,0.1);
+  border:1px solid rgba(0,212,200,0.2);
+  color:var(--cyan);padding:2px 7px;border-radius:4px;
+}
+
+/* alerts */
+.alert{
+  display:flex;gap:10px;align-items:flex-start;
+  border-radius:10px;padding:11px 14px;
+  font-size:12px;margin-bottom:8px;
+  line-height:1.55;
+}
+.alert.ok{background:rgba(45,222,152,0.08);border:1px solid rgba(45,222,152,0.2);color:#80f5c8;}
+.alert.warn{background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);color:#f8d97a;}
+.alert.bad{background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.2);color:#ff9aae;}
+.alert-ico{font-size:14px;flex-shrink:0;margin-top:1px;}
+
+/* policy */
+.policy-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin-bottom:14px;
+}
+.policy-card{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:14px;padding:14px;
+  backdrop-filter:blur(12px);
+}
+.policy-ico{font-size:18px;margin-bottom:7px;}
+.policy-name{font-size:12px;font-weight:700;color:var(--teal);margin-bottom:5px;}
+.policy-desc{font-size:10px;color:var(--dim);line-height:1.6;}
+
+.restart-btn{
+  width:100%;
+  background:none;border:1.5px solid var(--border);
+  border-radius:14px;color:var(--dim);
+  font-family:'Noto Sans KR',sans-serif;font-size:14px;
+  padding:14px;cursor:pointer;margin-top:6px;
+  transition:all .2s;
+}
+.restart-btn:hover{border-color:var(--teal);color:var(--teal);}
+
+/* ── WAVE ANIM TAG ────────────────────────── */
+.wave-tag{
+  position:fixed;bottom:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,transparent,var(--teal),transparent);
+  animation:wave-slide 3s ease-in-out infinite;
+  z-index:20;
+}
+@keyframes wave-slide{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+
+/* Loading */
+.loading-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:var(--deep);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:16px;
+  transition:opacity .5s;
+}
+.loading-overlay.hidden{opacity:0;pointer-events:none;}
+.loader-ring{
+  width:50px;height:50px;
+  border:2px solid var(--border);
+  border-top-color:var(--teal);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{
+  font-family:'DM Mono',monospace;font-size:11px;
+  letter-spacing:2px;color:var(--teal);
+}
+
+/* Responsive */
+@media(max-width:480px){
+  .option-grid{grid-template-columns:1fr 1fr;}
+  .metrics-row{grid-template-columns:1fr 1fr;}
+  .policy-grid{grid-template-columns:1fr;}
+  nav{padding:14px 16px;}
+  .card-panel{padding:22px 18px 18px;}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div class="loading-overlay" id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">INITIALIZING · MICROCLEAN</div>
+</div>
+
+<!-- Ocean background canvas -->
+<canvas id="ocean-bg"></canvas>
+
+<!-- Wave line -->
+<div class="wave-tag"></div>
+
+<!-- APP -->
+<div id="app">
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Micro<span>Clean</span></div>
+    <div class="nav-steps">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+      <div class="step-dot" id="dot-4"></div>
+      <div class="step-dot" id="dot-5"></div>
+    </div>
+    <div class="nav-team">ABSOLUTE · GNSH</div>
+  </nav>
+
+  <div id="pages">
+
+    <!-- PAGE 0: SPLASH -->
+    <div class="page active" id="page-0">
+      <div class="splash-sdg">SDG 14.1 · PAC + 키토산 복합 응집 시스템</div>
+      <div class="splash-title">MICRO<br>CLEAN</div>
+      <div class="splash-sub">
+        해양 센서 측정값을 입력하면<br>
+        미세플라스틱 제거에 필요한 응집제 투입량과<br>예상 회수율을 자동으로 계산합니다
+      </div>
+      <button class="splash-start" onclick="goTo(1)">측정 시작하기 →</button>
+      <div class="splash-info">
+        <div class="splash-stat">
+          <div class="splash-stat-num">50%</div>
+          <div class="splash-stat-lbl">해안쓰레기 중 플라스틱</div>
+        </div>
+        <div class="splash-stat">
+          <div class="splash-stat-num">13만톤</div>
+          <div class="splash-stat-lbl">2023 국내 수거량</div>
+        </div>
+        <div class="splash-stat">
+          <div class="splash-stat-num">↑4.7%</div>
+          <div class="splash-stat-lbl">전년 대비 증가율</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 1: 염분 + pH -->
+    <div class="page" id="page-1">
+      <div class="card-panel">
+        <div class="panel-eyebrow">STEP 1 / 4 · 해수 센서 측정값</div>
+        <div class="panel-title">염분과 pH를<br>입력해 주세요</div>
+        <div class="panel-desc">수질 센서(CTD, 멀티파라미터 프로브 등)로<br>측정한 값을 직접 입력하세요.</div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>염분 (Salinity)</span>
+            <span class="field-unit">PSU / ppt</span>
+          </div>
+          <div class="input-wrap" id="wrap-sal">
+            <div class="field-icon">🌊</div>
+            <input type="number" id="inp-sal" placeholder="33.0" min="0" max="45" step="0.1"
+              oninput="validateField('sal',0,45)" />
+            <div class="field-valid-icon">✅</div>
+          </div>
+          <div class="field-hint">일반 해수: <span>32–35 PSU</span> · 하구역: <span>0–25 PSU</span></div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>pH</span>
+            <span class="field-unit">—</span>
+          </div>
+          <div class="input-wrap" id="wrap-ph">
+            <div class="field-icon">🧪</div>
+            <input type="number" id="inp-ph" placeholder="8.1" min="5" max="10" step="0.01"
+              oninput="validateField('ph',5,10)" />
+            <div class="field-valid-icon">✅</div>
+          </div>
+          <div class="field-hint">정상 해수: <span>7.9–8.3</span> · 산성화 우려: <span>8.0 미만</span></div>
+        </div>
+
+        <button class="btn-next" id="btn1" onclick="goTo(2)" disabled>다음 단계 →</button>
+        <button class="btn-back" onclick="goTo(0)">← 처음으로</button>
+      </div>
+    </div>
+
+    <!-- PAGE 2: 수온 + 탁도 -->
+    <div class="page" id="page-2">
+      <div class="card-panel">
+        <div class="panel-eyebrow">STEP 2 / 4 · 해수 환경 조건</div>
+        <div class="panel-title">수온과 탁도를<br>입력해 주세요</div>
+        <div class="panel-desc">응집 반응 속도와 플록 형성에<br>직접 영향을 주는 값입니다.</div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>수온 (Temperature)</span>
+            <span class="field-unit">°C</span>
+          </div>
+          <div class="input-wrap" id="wrap-temp">
+            <div class="field-icon">🌡️</div>
+            <input type="number" id="inp-temp" placeholder="18.0" min="-2" max="40" step="0.1"
+              oninput="validateField('temp',-2,40)" />
+            <div class="field-valid-icon">✅</div>
+          </div>
+          <div class="field-hint">한국 연안 평균: <span>10–25 °C</span></div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>탁도 (Turbidity)</span>
+            <span class="field-unit">NTU</span>
+          </div>
+          <div class="input-wrap" id="wrap-turb">
+            <div class="field-icon">💧</div>
+            <input type="number" id="inp-turb" placeholder="15" min="0" max="500" step="1"
+              oninput="validateField('turb',0,500)" />
+            <div class="field-valid-icon">✅</div>
+          </div>
+          <div class="field-hint">청정 해수: <span>1–10 NTU</span> · 부유물 많음: <span>50 NTU+</span></div>
+        </div>
+
+        <button class="btn-next" id="btn2" onclick="goTo(3)" disabled>다음 단계 →</button>
+        <button class="btn-back" onclick="goTo(1)">← 이전</button>
+      </div>
+    </div>
+
+    <!-- PAGE 3: MP 조건 -->
+    <div class="page" id="page-3">
+      <div class="card-panel">
+        <div class="panel-eyebrow">STEP 3 / 4 · 미세플라스틱 현황</div>
+        <div class="panel-title">미세플라스틱<br>농도와 처리량</div>
+        <div class="panel-desc">현장 채취 후 현미경 또는 분광 분석으로<br>측정한 농도를 입력하세요.</div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>미세플라스틱 농도</span>
+            <span class="field-unit">개 / L</span>
+          </div>
+          <div class="input-wrap" id="wrap-conc">
+            <div class="field-icon">🔬</div>
+            <input type="number" id="inp-conc" placeholder="500" min="1" max="50000" step="1"
+              oninput="validateField('conc',1,50000)" />
+            <div class="field-valid-icon">✅</div>
+          </div>
+          <div class="field-hint">해안 표층 일반: <span>100–2000 개/L</span></div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">
+            <span>처리 수량</span>
+            <span class="field-unit">L</span>
+          </div>
+          <div class="input-wrap" id="wrap-vol">
+            <div class="field-icon">🪣</div>
+            <input type="number" id="inp-vol" placeholder="50" min="0.1" max="10000" step="0.1"
+              oninput="validateField('vol',0.1,10000)" />
+            <div class="field-valid-icon">✅</div>
+          </div>
+          <div class="field-hint">실험 규모: <span>1–10 L</span> · 현장 규모: <span>100 L+</span></div>
+        </div>
+
+        <button class="btn-next" id="btn3" onclick="goTo(4)" disabled>다음 단계 →</button>
+        <button class="btn-back" onclick="goTo(2)">← 이전</button>
+      </div>
+    </div>
+
+    <!-- PAGE 4: 조건 선택 -->
+    <div class="page" id="page-4">
+      <div class="card-panel">
+        <div class="panel-eyebrow">STEP 4 / 4 · 입자 특성</div>
+        <div class="panel-title">미세플라스틱<br>크기를 선택하세요</div>
+        <div class="panel-desc">입자 크기에 따라 응집 메커니즘과<br>최적 응집제 비율이 달라집니다.</div>
+
+        <div class="option-grid">
+          <button class="option-btn" id="opt-nano" onclick="selectSize('nano')">
+            <span class="option-icon">🔴</span>
+            <span class="option-label">나노플라스틱</span>
+            <span class="option-sub">0.1 – 1 µm</span>
+          </button>
+          <button class="option-btn" id="opt-small" onclick="selectSize('small')">
+            <span class="option-icon">🟠</span>
+            <span class="option-label">소형</span>
+            <span class="option-sub">1 – 100 µm</span>
+          </button>
+          <button class="option-btn" id="opt-medium" onclick="selectSize('medium')">
+            <span class="option-icon">🟡</span>
+            <span class="option-label">중형</span>
+            <span class="option-sub">100 – 500 µm</span>
+          </button>
+          <button class="option-btn" id="opt-large" onclick="selectSize('large')">
+            <span class="option-icon">🟢</span>
+            <span class="option-label">대형</span>
+            <span class="option-sub">500 – 5000 µm</span>
+          </button>
+        </div>
+
+        <button class="btn-next" id="btn4" onclick="runCalc()" disabled>📊 결과 분석하기</button>
+        <button class="btn-back" onclick="goTo(3)">← 이전</button>
+      </div>
+    </div>
+
+    <!-- PAGE 5: RESULTS -->
+    <div class="page" id="page-5">
+      <div class="results-wrap" id="results-wrap"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   OCEAN CANVAS
+════════════════════════════════════════════ */
+const canvas = document.getElementById('ocean-bg');
+const ctx = canvas.getContext('2d');
+let W, H, t = 0;
+const bubbles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function initBubbles() {
+  for (let i = 0; i < 30; i++) {
+    bubbles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 3 + 1,
+      vy: -(Math.random() * 0.4 + 0.15),
+      alpha: Math.random() * 0.3 + 0.05,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: Math.random() * 0.02 + 0.005
+    });
+  }
+}
+initBubbles();
+
+function drawOcean() {
+  t += 0.008;
+
+  // Deep gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#010c1a');
+  grad.addColorStop(0.5, '#021b33');
+  grad.addColorStop(1, '#041e3a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Caustic light shafts
+  for (let i = 0; i < 4; i++) {
+    const x = W * (0.15 + i * 0.22) + Math.sin(t * 0.3 + i) * 30;
+    const shaftGrad = ctx.createLinearGradient(x - 60, 0, x + 60, H * 0.7);
+    shaftGrad.addColorStop(0, 'rgba(0,200,190,0.04)');
+    shaftGrad.addColorStop(0.5, 'rgba(0,180,170,0.015)');
+    shaftGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = shaftGrad;
+    ctx.beginPath();
+    ctx.moveTo(x - 60 + Math.sin(t * 0.2) * 20, 0);
+    ctx.lineTo(x + 60 + Math.sin(t * 0.2) * 20, 0);
+    ctx.lineTo(x + 120, H * 0.75);
+    ctx.lineTo(x - 120, H * 0.75);
+    ctx.fill();
+  }
+
+  // Undulating waves (multiple layers)
+  for (let w = 0; w < 3; w++) {
+    const waveY = H * (0.3 + w * 0.22);
+    const amp = 18 - w * 4;
+    const freq = 0.006 + w * 0.002;
+    const speed = t * (0.6 + w * 0.2);
+    const alpha = 0.06 - w * 0.015;
+
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    for (let x = 0; x <= W; x += 3) {
+      const y = waveY + Math.sin(x * freq + speed) * amp +
+                        Math.sin(x * freq * 1.7 + speed * 1.3) * (amp * 0.4);
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fillStyle = `rgba(0,180,170,${alpha})`;
+    ctx.fill();
+  }
+
+  // Bubbles
+  bubbles.forEach(b => {
+    b.y += b.vy;
+    b.wobble += b.wobbleSpeed;
+    const bx = b.x + Math.sin(b.wobble) * 3;
+    if (b.y < -10) { b.y = H + 10; b.x = Math.random() * W; }
+
+    ctx.beginPath();
+    ctx.arc(bx, b.y, b.r, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(100,240,230,${b.alpha})`;
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    // tiny highlight
+    ctx.beginPath();
+    ctx.arc(bx - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.3, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,255,250,${b.alpha * 0.6})`;
+    ctx.fill();
+  });
+
+  // Subtle glow at bottom
+  const bottomGlow = ctx.createRadialGradient(W/2, H, 0, W/2, H, W * 0.6);
+  bottomGlow.addColorStop(0, 'rgba(0,150,140,0.06)');
+  bottomGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = bottomGlow;
+  ctx.fillRect(0, 0, W, H);
+
+  requestAnimationFrame(drawOcean);
+}
+drawOcean();
+
+/* ════════════════════════════════════════════
+   STATE + NAVIGATION
+════════════════════════════════════════════ */
+let currentPage = 0;
+const state = { sal: null, ph: null, temp: null, turb: null, conc: null, vol: null, size: null };
+
+function goTo(n) {
+  const cur = document.getElementById('page-' + currentPage);
+  const nxt = document.getElementById('page-' + n);
+  cur.classList.remove('active');
+  cur.classList.add('exit');
+  setTimeout(() => cur.classList.remove('exit'), 500);
+  nxt.classList.add('active');
+  currentPage = n;
+  updateDots();
+}
+
+function updateDots() {
+  for (let i = 0; i <= 5; i++) {
+    const d = document.getElementById('dot-' + i);
+    d.className = 'step-dot';
+    if (i < currentPage) d.classList.add('done');
+    else if (i === currentPage) d.classList.add('active');
+  }
+}
+
+/* ════════════════════════════════════════════
+   VALIDATION
+════════════════════════════════════════════ */
+const btnMap = { sal: 'btn1', ph: 'btn1', temp: 'btn2', turb: 'btn2', conc: 'btn3', vol: 'btn3' };
+const pageFields = { 1: ['sal','ph'], 2: ['temp','turb'], 3: ['conc','vol'] };
+
+function validateField(key, min, max) {
+  const inp = document.getElementById('inp-' + key);
+  const wrap = document.getElementById('wrap-' + key);
+  const v = parseFloat(inp.value);
+  const ok = !isNaN(v) && v >= min && v <= max;
+  wrap.classList.toggle('valid', ok);
+  wrap.classList.toggle('error', inp.value !== '' && !ok);
+  state[key] = ok ? v : null;
+
+  // check page btn
+  const btn = document.getElementById(btnMap[key]);
+  const pg = parseInt(btn.id.replace('btn',''));
+  const allOk = pageFields[pg].every(k => state[k] !== null);
+  btn.disabled = !allOk;
+}
+
+/* ════════════════════════════════════════════
+   SIZE SELECTION
+════════════════════════════════════════════ */
+function selectSize(s) {
+  ['nano','small','medium','large'].forEach(k =>
+    document.getElementById('opt-' + k).classList.remove('selected')
+  );
+  document.getElementById('opt-' + s).classList.add('selected');
+  state.size = s;
+  document.getElementById('btn4').disabled = false;
+}
+
+/* ════════════════════════════════════════════
+   CALCULATION ENGINE
+════════════════════════════════════════════ */
+function calc(s) {
+  // Base parameters from experiments (PAC+Chitosan optimal ratio 3:2)
+  let baseEff = 0.74;
+  let pacBase  = 8.5;  // mg/L
+  let chitBase = 5.5;  // mg/L
+
+  // pH correction (optimal 6.5–7.5 for PAC coagulation)
+  if      (s.ph < 5.5)  { baseEff -= 0.18; pacBase *= 1.3; chitBase *= 1.25; }
+  else if (s.ph < 6.5)  { baseEff -= 0.06; pacBase *= 1.15; chitBase *= 1.2; }
+  else if (s.ph <= 7.5) { baseEff += 0.05; }
+  else if (s.ph <= 8.2) { baseEff += 0.01; }
+  else if (s.ph <= 8.8) { baseEff -= 0.05; pacBase *= 1.1; }
+  else                  { baseEff -= 0.14; pacBase *= 1.25; chitBase *= 1.15; }
+
+  // Salinity correction (ionic strength)
+  if      (s.sal < 3)   { baseEff -= 0.09; pacBase *= 1.15; }
+  else if (s.sal < 15)  { baseEff -= 0.03; }
+  else if (s.sal <= 32) { baseEff += 0.02; }
+  else if (s.sal <= 37) { /* optimal */ }
+  else                  { baseEff -= 0.05; pacBase *= 1.1; }
+
+  // Temperature correction
+  if      (s.temp < 3)  { baseEff -= 0.10; chitBase *= 1.2; }
+  else if (s.temp < 8)  { baseEff -= 0.05; chitBase *= 1.1; }
+  else if (s.temp <= 25){ /* optimal */ }
+  else if (s.temp <= 32){ baseEff -= 0.02; }
+  else                  { baseEff -= 0.06; }
+
+  // Turbidity correction (higher = more coagulant needed, more surface area)
+  if      (s.turb < 5)  { baseEff -= 0.02; pacBase *= 0.9; }
+  else if (s.turb <= 30){ /* baseline */ }
+  else if (s.turb <= 80){ baseEff += 0.03; pacBase += 2; chitBase += 1; }
+  else                  { baseEff += 0.04; pacBase += 4; chitBase += 2; }
+
+  // MP size correction
+  const sizeMods = { nano: -0.22, small: 0, medium: +0.05, large: +0.11 };
+  const sizeLabels = { nano: '나노 (<1 µm)', small: '소형 (1–100 µm)', medium: '중형 (100–500 µm)', large: '대형 (500+ µm)' };
+  baseEff += sizeMods[s.size];
+  if (s.size === 'nano')  { pacBase *= 1.1; chitBase *= 1.3; }
+  if (s.size === 'large') { pacBase *= 0.9; chitBase *= 0.85; }
+
+  // Concentration factor (more MPs → more coagulant)
+  const cf = Math.log10(s.conc / 100 + 1) * 0.35;
+  pacBase  *= (1 + cf * 0.4);
+  chitBase *= (1 + cf * 0.3);
+
+  baseEff = Math.max(0.12, Math.min(0.96, baseEff));
+
+  const eff        = Math.round(baseEff * 1000) / 10;
+  const pacMgL     = Math.round(pacBase  * 10) / 10;
+  const chitMgL    = Math.round(chitBase * 10) / 10;
+  const totalPerL  = pacMgL + chitMgL;
+  const pacTotal   = Math.round(pacMgL  * s.vol);
+  const chitTotal  = Math.round(chitMgL * s.vol);
+  const totalMg    = Math.round(totalPerL * s.vol * 10) / 10;
+  const removed    = Math.round(s.conc * s.vol * baseEff);
+  const remain     = Math.round(s.conc * s.vol * (1 - baseEff));
+
+  // Floc time (minutes)
+  let flocTime = 15;
+  if (s.temp < 8)   flocTime += 9;
+  if (s.temp < 15)  flocTime += 4;
+  if (s.sal < 10)   flocTime += 6;
+  if (s.ph > 8.5 || s.ph < 6.5) flocTime += 5;
+  if (s.size === 'nano') flocTime += 8;
+  flocTime = Math.round(flocTime);
+
+  // Stir speeds
+  const rapidRpm = s.ph < 7 ? 260 : 200;
+
+  return {
+    eff, pacMgL, chitMgL, totalMg, pacTotal, chitTotal,
+    removed, remain, flocTime, rapidRpm,
+    sizeLabel: sizeLabels[s.size]
+  };
+}
+
+/* ════════════════════════════════════════════
+   RENDER RESULTS
+════════════════════════════════════════════ */
+function runCalc() {
+  const r = calc(state);
+  const s = state;
+
+  // Efficiency color
+  const effColor = r.eff >= 85 ? '#2dde98' : r.eff >= 70 ? '#00d4c8' : r.eff >= 50 ? '#f5c842' : '#ff4d6d';
+
+  // Ring SVG
+  function ring(val, color, r2 = 28) {
+    const circ = 2 * Math.PI * r2;
+    const dash = (val / 100) * circ;
+    return `<svg width="80" height="80" viewBox="0 0 80 80">
+      <circle cx="40" cy="40" r="${r2}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+      <circle cx="40" cy="40" r="${r2}" fill="none" stroke="${color}" stroke-width="5"
+        stroke-dasharray="${dash} ${circ}" stroke-linecap="round"
+        style="transition:stroke-dasharray 1.2s cubic-bezier(.16,1,.3,1)"/>
+    </svg>`;
+  }
+
+  // PAC vs Chitosan split
+  const total = r.pacMgL + r.chitMgL || 1;
+  const pacPct  = Math.round(r.pacMgL  / total * 100);
+  const chitPct = Math.round(r.chitMgL / total * 100);
+
+  // Alerts
+  const alerts = [];
+  if (s.ph > 8.5)       alerts.push({type:'warn', ico:'⚠️', msg:`pH ${s.ph}은 응집 최적 범위(6.5–8.2)를 벗어납니다. PAC 투입량이 자동 보정되었습니다.`});
+  if (s.ph < 6.5)       alerts.push({type:'warn', ico:'⚠️', msg:`낮은 pH에서 키토산 용해도는 높지만 PAC 응집 핵 형성이 지연됩니다.`});
+  if (s.sal < 5)        alerts.push({type:'warn', ico:'🌊', msg:`저염분 환경: 이온 강도 부족으로 전하중화 효율 감소. 현장 희석 여부 확인 권장.`});
+  if (s.temp < 8)       alerts.push({type:'warn', ico:'🌡️', msg:`저수온: 분자 충돌 빈도 감소로 플록 성장 지연. 완속 교반 시간을 20% 연장하세요.`});
+  if (s.size === 'nano')alerts.push({type:'bad',  ico:'🔬', msg:`나노플라스틱은 응집 효율이 낮습니다. 전기응집(EC) 전처리 또는 초음파 분산 병용을 권장합니다.`});
+  if (r.eff >= 82)      alerts.push({type:'ok',   ico:'✅', msg:`현재 측정값은 PAC+키토산 복합 처리에 적합합니다. 예상 제거율 ${r.eff}%로 PAC 단독 대비 약 20%p 향상됩니다.`});
+  if (r.eff >= 70 && r.eff < 82) alerts.push({type:'ok', ico:'✅', msg:`양호한 조건입니다. 예상 제거율 ${r.eff}%. pH를 7.0~7.5로 조정 시 추가 향상 가능.`});
+
+  const alertsHTML = alerts.map(a =>
+    `<div class="alert ${a.type}"><div class="alert-ico">${a.ico}</div><div>${a.msg}</div></div>`
+  ).join('');
+
+  // Steps
+  const steps = [
+    { n:'01', t:'시료 채취 및 초기 측정', d:`해수 ${s.vol}L 채취. 거대 부유물 1차 제거. pH ${s.ph}, 염분 ${s.sal} PSU, 탁도 ${s.turb} NTU, 수온 ${s.temp}°C 확인.`, tag:`초기 탁도 ${s.turb} NTU` },
+    { n:'02', t:'PAC(폴리염화알루미늄) 투입', d:`PAC 원액 희석 후 <b>${r.pacTotal} mg</b> 투입 (${r.pacMgL} mg/L). 급속 교반 ${r.rapidRpm} rpm × 1분. Al³⁺ 이온에 의한 전하중화 진행.`, tag:`PAC ${r.pacTotal} mg 총량` },
+    { n:'03', t:'키토산 용액 첨가', d:`1% 아세트산 용해 키토산 <b>${r.chitTotal} mg</b> 투입 (${r.chitMgL} mg/L). 양이온성 천연 고분자가 미세플라스틱 표면에 흡착 → 가교 응집 촉진.`, tag:`키토산 ${r.chitTotal} mg 총량` },
+    { n:'04', t:'완속 교반 · 플록 성장', d:`40 rpm 완속 교반 ${r.flocTime}분. 마이크로플라스틱 입자(${r.sizeLabel})가 플록에 포획. 수온 ${s.temp}°C 기준 예상 플록 크기: ${s.temp > 15 ? '0.5–2 mm' : '0.2–1 mm'}.`, tag:`교반 ${r.flocTime}분` },
+    { n:'05', t:'침강 분리 및 슬러지 회수', d:`교반 중단 후 25~30분 정치 침강. 상등액 흡인 제거. 예상 제거 입자 <b>${r.removed.toLocaleString()}개</b>, 잔류 ${r.remain.toLocaleString()}개. 슬러지 고형화 후 육상 폐기.`, tag:`잔류 ${r.remain.toLocaleString()}개` }
+  ];
+
+  const stepsHTML = steps.map(s2 =>
+    `<div class="step-row">
+      <div class="step-circle">${s2.n}</div>
+      <div class="step-body">
+        <div class="step-name">${s2.t}</div>
+        <div class="step-info">${s2.d}</div>
+        <span class="step-tag">${s2.tag}</span>
+      </div>
+    </div>`
+  ).join('');
+
+  document.getElementById('results-wrap').innerHTML = `
+    <!-- Hero -->
+    <div class="result-hero">
+      <div class="hero-label">예상 미세플라스틱 제거율</div>
+      <div class="hero-number" style="color:${effColor}">${r.eff}<span style="font-size:32px">%</span></div>
+      <div class="hero-sub">PAC ${r.pacMgL} mg/L + 키토산 ${r.chitMgL} mg/L · 총 ${r.totalMg} mg</div>
+
+      <div class="eff-ring-wrap">
+        <div>
+          <div class="eff-ring" id="ring-pac-wrap">
+            ${ring(pacPct, '#4a9eff')}
+            <div class="eff-ring-label">${pacPct}<div class="eff-ring-sub">%</div></div>
+          </div>
+          <div class="ring-legend"><b>${r.pacMgL} mg/L</b>PAC 기여</div>
+        </div>
+        <div>
+          <div class="eff-ring" id="ring-eff-wrap">
+            ${ring(r.eff, effColor)}
+            <div class="eff-ring-label">${r.eff}<div class="eff-ring-sub">%</div></div>
+          </div>
+          <div class="ring-legend"><b>복합 처리</b>총 효율</div>
+        </div>
+        <div>
+          <div class="eff-ring" id="ring-chit-wrap">
+            ${ring(chitPct, '#2dde98')}
+            <div class="eff-ring-label">${chitPct}<div class="eff-ring-sub">%</div></div>
+          </div>
+          <div class="ring-legend"><b>${r.chitMgL} mg/L</b>키토산 기여</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-row">
+      <div class="metric-box">
+        <div class="metric-n">${r.pacTotal}</div>
+        <div class="metric-u">mg</div>
+        <div class="metric-l">PAC 총 투입량</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-n">${r.chitTotal}</div>
+        <div class="metric-u">mg</div>
+        <div class="metric-l">키토산 총 투입량</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-n">${r.flocTime}</div>
+        <div class="metric-u">분</div>
+        <div class="metric-l">플록 형성 시간</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-n">${r.removed.toLocaleString()}</div>
+        <div class="metric-u">개</div>
+        <div class="metric-l">제거 입자 수</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-n">${r.remain.toLocaleString()}</div>
+        <div class="metric-u">개</div>
+        <div class="metric-l">잔류 입자 수</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-n">${r.rapidRpm}</div>
+        <div class="metric-u">rpm</div>
+        <div class="metric-l">권장 급속 교반</div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div>${alertsHTML}</div>
+
+    <!-- Process -->
+    <div class="steps-block">
+      <div class="steps-title">권장 처리 프로세스</div>
+      ${stepsHTML}
+    </div>
+
+    <!-- Policy -->
+    <div class="policy-grid">
+      <div class="policy-card">
+        <div class="policy-ico">🌊</div>
+        <div class="policy-name">해양 설치형 모듈</div>
+        <div class="policy-desc">항구·해수욕장 인근 소규모 처리 모듈 운용. 생분해성 메시망 회수로 2차 오염 최소화.</div>
+      </div>
+      <div class="policy-card">
+        <div class="policy-ico">♻️</div>
+        <div class="policy-name">키토산 원료 순환</div>
+        <div class="policy-desc">갑각류 수산 부산물 재활용 연계 정책. 탄소발자국 감소 및 원가 절감 가능.</div>
+      </div>
+      <div class="policy-card">
+        <div class="policy-ico">📡</div>
+        <div class="policy-name">IoT 자동 투입 제어</div>
+        <div class="policy-desc">센서값 실시간 수신 → 본 모델 연동 → 응집제 자동 투입 제어. 처리 일관성 확보.</div>
+      </div>
+      <div class="policy-card">
+        <div class="policy-ico">🏭</div>
+        <div class="policy-name">정수장 공정 표준화</div>
+        <div class="policy-desc">기존 응집-침전 공정에 키토산 보조 단계 추가. 저CAPEX로 MP 제거율 15~25%p 향상.</div>
+      </div>
+    </div>
+
+    <button class="restart-btn" onclick="restart()">↺ 다시 측정하기</button>
+  `;
+
+  goTo(5);
+}
+
+function restart() {
+  // Reset state
+  Object.keys(state).forEach(k => state[k] = null);
+  ['sal','ph','temp','turb','conc','vol'].forEach(k => {
+    document.getElementById('inp-' + k).value = '';
+    document.getElementById('wrap-' + k).classList.remove('valid','error');
+  });
+  ['btn1','btn2','btn3','btn4'].forEach(b => document.getElementById(b).disabled = true);
+  ['nano','small','medium','large'].forEach(k =>
+    document.getElementById('opt-' + k).classList.remove('selected')
+  );
+  // Scroll result back to top
+  document.getElementById('page-5').scrollTop = 0;
+  goTo(0);
+}
+
+// Hide loader
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 900);
+});
+</script>
+</body>
+</html>
